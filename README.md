@@ -50,11 +50,13 @@ controlled I/O workloads; CPU-heavy work cannot be presented as async.
 
 ## Status and documentation
 
-No runtime implementation exists yet. Development proceeds through gated
-stages, and a stage must pass its acceptance criteria before the next begins.
+The Stage 2 Rust foundation is implemented and awaiting acceptance.
+Development proceeds through gated stages, and a stage must pass its acceptance
+criteria before the next begins.
 
 - [Product and technical contract](docs/design/01-product-and-technical-contract.md)
 - [Foundation pre-release notes](docs/pre_release_notes/01-foundation.md)
+- [Stage 2 Rust foundation report](docs/pre_release_notes/02-rust-foundation.md)
 
 ## Planned repository layout
 
