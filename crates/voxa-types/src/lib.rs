@@ -5,6 +5,6 @@ mod error;
 mod id;
 mod time;
 
-pub use error::{ErrorCategory, ErrorContext, Result, VoxaError};
+pub use error::{ErrorCategory, ErrorCodeError, ErrorContext, Result, VoxaError};
 pub use id::{IdentifierError, NodeId, SessionId, StreamId, TraceId};
 pub use time::{SequenceId, Timestamp};

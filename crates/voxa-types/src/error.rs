@@ -149,7 +149,7 @@ fn is_valid_code(code: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{ErrorCategory, ErrorContext, VoxaError};
-    use crate::NodeId;
+    use crate::{ErrorCodeError, NodeId};
 
     #[test]
     fn error_preserves_category_code_and_context() {
@@ -174,6 +174,26 @@ mod tests {
     #[test]
     fn error_rejects_invalid_stable_code() {
         assert!(VoxaError::try_new(ErrorCategory::Internal, "temporary code", "failure").is_err());
+    }
+
+    #[test]
+    fn error_code_error_is_reachable_from_the_crate_root() {
+        let result: std::result::Result<VoxaError, ErrorCodeError> =
+            VoxaError::try_new(ErrorCategory::Internal, "temporary code", "failure");
+
+        assert_eq!(result.unwrap_err(), ErrorCodeError);
+    }
+
+    #[test]
+    fn error_display_omits_sensitive_context_values() {
+        let error = VoxaError::new(
+            ErrorCategory::Configuration,
+            "VOXA-CFG-001",
+            "missing model",
+        )
+        .with_context("api_token", "secret-value");
+
+        assert!(!error.to_string().contains("secret-value"));
     }
 
     #[test]
