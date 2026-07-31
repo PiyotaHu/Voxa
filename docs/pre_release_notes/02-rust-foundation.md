@@ -60,7 +60,8 @@ values:
   `node`, and `fields`.
 - `LogRecord::with_field` is fallible and rejects reserved field names with
   `VOXA-LOG-001`.
-- Object-safe `LogSink: Send + Sync`, `TracingLogSink`, and idempotent
+- Object-safe `LogSink: Send + Sync` with required method
+  `fn emit(&self, record: &LogRecord)`, `TracingLogSink`, and idempotent
   `init_default_logging() -> voxa_types::Result<()>`.
 
 `voxa-examples` exposes `hello_message(&SessionId) -> String`; its `hello`
