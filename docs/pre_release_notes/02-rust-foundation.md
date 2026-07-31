@@ -2,7 +2,7 @@
 
 Date: **2026-08-01**
 
-Status: **Implemented and awaiting acceptance.**
+Status: **Closed for sequencing by maintainer direction; review findings deferred.**
 
 ## Scope and recommendation
 
@@ -288,6 +288,27 @@ builders plus validated event names. The dependency tree and source scan match
 the declared Stage 2 boundaries. No production-code defect was observed, so no
 scope-expanding change was made.
 
-Concern: acceptance remains a user decision. This report makes no claim of CI
-execution, performance measurement, Stage 3 commencement, or later-stage
-readiness.
+This report makes no claim of CI execution, performance measurement, or
+later-stage readiness.
+
+## Deferred final-review findings
+
+On 2026-08-01, the maintainer directed development to continue to Stage 3
+without resolving the final Stage 2 review findings. This is a sequencing
+decision, not a claim that the findings passed review.
+
+The deferred contract findings are:
+
+- the default `TracingLogSink` can emit arbitrary field values and therefore
+  does not yet enforce the Stage 1 default-log privacy boundary; and
+- `ErrorContext::Session` and `ErrorContext::Stream` cannot yet be attached
+  through public `VoxaError` builder methods.
+
+The deferred verification and documentation findings cover tracing-output
+capture, concurrent and pre-installed subscriber initialization, identifier
+length boundaries, timestamp clock-domain wording, event-name grammar wording,
+the stale fallible logging example in the implementation plan, and labeling a
+summarized test-result block as summarized rather than literal output.
+
+These findings must remain visible in later reviews and must be resolved before
+Voxa claims the Stage 2 foundation is quality-clean or publishes a release.

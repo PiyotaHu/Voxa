@@ -50,9 +50,10 @@ controlled I/O workloads; CPU-heavy work cannot be presented as async.
 
 ## Status and documentation
 
-The Stage 2 Rust foundation is implemented and awaiting acceptance.
-Development proceeds through gated stages, and a stage must pass its acceptance
-criteria before the next begins.
+The Stage 2 Rust foundation is implemented. By maintainer direction, development
+is proceeding to Stage 3 with the remaining Stage 2 review findings explicitly
+deferred. Stage 2 is closed for sequencing, but is not yet quality-clean; the
+deferred findings remain recorded in its pre-release report.
 
 - [Product and technical contract](docs/design/01-product-and-technical-contract.md)
 - [Foundation pre-release notes](docs/pre_release_notes/01-foundation.md)
