@@ -6,4 +6,6 @@ rust-version.workspace = true
 publish.workspace = true
 
 [dependencies]
+tracing.workspace = true
+tracing-subscriber.workspace = true
 voxa-types.workspace = true
