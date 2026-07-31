@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "crates/voxa-core",
+    "crates/voxa-examples",
+    "crates/voxa-types",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+publish = false
+
+[workspace.dependencies]
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt"] }
+voxa-types = { path = "crates/voxa-types", version = "0.1.0" }
