@@ -173,7 +173,9 @@ impl LogSink for TracingLogSink {
 /// Initializes the default `tracing` formatter once without replacing an existing subscriber.
 pub fn init_default_logging() -> Result<()> {
     DEFAULT_LOGGING.get_or_init(|| {
-        let _ = tracing_subscriber::fmt().try_init();
+        let _ = tracing_subscriber::fmt()
+            .with_writer(std::io::stderr)
+            .try_init();
     });
 
     Ok(())
