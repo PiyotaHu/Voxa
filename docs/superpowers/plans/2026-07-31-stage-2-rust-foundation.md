@@ -53,6 +53,7 @@ docs/pre_release_notes/02-rust-foundation.md  Stage report, APIs, checks, and ri
 
 **Files:**
 - Create: `Cargo.toml`
+- Create: `Cargo.lock`
 - Create: `rust-toolchain.toml`
 - Create: `.rustfmt.toml`
 - Create: `.gitignore`
@@ -148,7 +149,7 @@ Expected: PASS with no tests yet and no `unsafe` or async-runtime dependency.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Cargo.toml rust-toolchain.toml .rustfmt.toml .gitignore crates
+git add Cargo.toml Cargo.lock rust-toolchain.toml .rustfmt.toml .gitignore crates
 git commit -m "build: bootstrap Rust workspace"
 ```
 
