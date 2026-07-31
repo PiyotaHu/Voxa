@@ -6,6 +6,8 @@ use voxa_types::{ErrorCategory, NodeId, Result, SessionId, VoxaError};
 
 static DEFAULT_LOGGING: OnceLock<()> = OnceLock::new();
 
+const MAX_EVENT_NAME_BYTES: usize = 96;
+
 /// A severity for a structured Voxa log record.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LogLevel {
@@ -33,14 +35,28 @@ pub struct LogRecord {
 
 impl LogRecord {
     /// Creates a record with its severity and stable event name.
-    pub fn new(level: LogLevel, event_name: impl Into<Box<str>>) -> Self {
-        Self {
+    ///
+    /// Event names are lowercase ASCII dotted identifiers such as
+    /// `runtime.started`. Each dot-separated segment starts with a lowercase
+    /// letter and may then contain lowercase letters, digits, or hyphens. Names
+    /// are limited to 96 bytes and validation failures use `VOXA-LOG-002`.
+    pub fn new(level: LogLevel, event_name: impl Into<Box<str>>) -> Result<Self> {
+        let event_name = event_name.into();
+        if !is_stable_event_name(&event_name) {
+            return Err(VoxaError::new(
+                ErrorCategory::Validation,
+                "VOXA-LOG-002",
+                "event name must be a stable lowercase ASCII dotted identifier",
+            ));
+        }
+
+        Ok(Self {
             level,
-            event_name: event_name.into(),
+            event_name,
             session: None,
             node: None,
             fields: Vec::new(),
-        }
+        })
     }
 
     /// Attaches the session associated with the event.
@@ -169,6 +185,18 @@ fn is_reserved_field(name: &str) -> bool {
         .any(|reserved| name.eq_ignore_ascii_case(reserved))
 }
 
+fn is_stable_event_name(name: &str) -> bool {
+    (1..=MAX_EVENT_NAME_BYTES).contains(&name.len())
+        && name.is_ascii()
+        && name.split('.').all(|segment| {
+            let mut bytes = segment.bytes();
+            matches!(bytes.next(), Some(byte) if byte.is_ascii_lowercase())
+                && bytes
+                    .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+                && !segment.ends_with('-')
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Mutex;
@@ -194,6 +222,7 @@ mod tests {
     fn custom_sink_receives_structured_record() {
         let sink = CollectSink::default();
         let record = LogRecord::new(LogLevel::Info, "runtime.started")
+            .expect("stable event name")
             .with_session(SessionId::new("session-1").expect("valid session"))
             .with_field("worker_count", "2")
             .expect("safe field");
@@ -212,6 +241,7 @@ mod tests {
     #[test]
     fn record_preserves_identity_and_field_insertion_order() {
         let record = LogRecord::new(LogLevel::Warn, "runtime.degraded")
+            .expect("stable event name")
             .with_session(SessionId::new("session-1").expect("valid session"))
             .with_node(NodeId::new("asr.primary").expect("valid node"))
             .with_field("attempt", "2")
@@ -235,6 +265,7 @@ mod tests {
     #[test]
     fn rejects_payload_field_to_prevent_sensitive_logging() {
         let error = LogRecord::new(LogLevel::Info, "runtime.started")
+            .expect("stable event name")
             .with_field("payload", "audio bytes")
             .expect_err("payload must be rejected");
 
@@ -244,6 +275,7 @@ mod tests {
     #[test]
     fn rejects_authorization_field_to_prevent_sensitive_logging() {
         let error = LogRecord::new(LogLevel::Info, "runtime.started")
+            .expect("stable event name")
             .with_field("authorization", "Bearer secret")
             .expect_err("authorization must be rejected");
 
@@ -253,10 +285,35 @@ mod tests {
     #[test]
     fn rejects_private_extension_field_to_prevent_sensitive_logging() {
         let error = LogRecord::new(LogLevel::Info, "runtime.started")
+            .expect("stable event name")
             .with_field("private_extension", "secret")
             .expect_err("private extension must be rejected");
 
         assert_eq!(error.code(), "VOXA-LOG-001");
+    }
+
+    #[test]
+    fn rejects_unstable_event_names() {
+        let invalid_names = [
+            "".to_owned(),
+            " runtime.started".to_owned(),
+            "runtime.started ".to_owned(),
+            "runtime\nstarted".to_owned(),
+            "runtime.开始".to_owned(),
+            "runtime started".to_owned(),
+            "Runtime.started".to_owned(),
+            "runtime..started".to_owned(),
+            "runtime.-started".to_owned(),
+            "runtime.started-".to_owned(),
+            format!("runtime.{}", "a".repeat(89)),
+        ];
+
+        for name in invalid_names {
+            let error = LogRecord::new(LogLevel::Info, name)
+                .expect_err("unstable event name must be rejected");
+
+            assert_eq!(error.code(), "VOXA-LOG-002");
+        }
     }
 
     #[test]
