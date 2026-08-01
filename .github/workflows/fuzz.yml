@@ -18,6 +18,8 @@ jobs:
           toolchain: nightly-2026-07-15
       - name: Provision cargo-fuzz
         run: cargo install cargo-fuzz --locked --version 0.12.0
+      - name: Fetch workspace dependencies explicitly
+        run: cargo fetch --locked
       - name: Fetch fuzz dependencies explicitly
         run: cargo fetch --manifest-path fuzz/Cargo.toml
       - name: Run bounded fuzz targets
