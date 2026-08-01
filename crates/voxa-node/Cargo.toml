@@ -9,7 +9,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-napi = { version = "2.16", features = ["napi8", "dyn-symbols"] }
+napi = { version = "3.12", features = ["napi8", "dyn-symbols"] }
 napi-derive = "2.16"
 serde.workspace = true
 serde_json.workspace = true
