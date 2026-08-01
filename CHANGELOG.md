@@ -34,4 +34,9 @@ but must be called out explicitly with migration guidance.
 - Updated PyO3 to 0.29.0, resolving the published iterator out-of-bounds read,
   missing `Sync` bound, and `PyString::from_object` buffer-safety advisories.
 
+### Fixed
+
+- Node Worker shutdown now waits for the native execution domain to acknowledge
+  closure before terminating the Worker, preventing environment teardown races.
+
 [Unreleased]: https://github.com/PiyotaHu/Voxa/compare/main...HEAD
